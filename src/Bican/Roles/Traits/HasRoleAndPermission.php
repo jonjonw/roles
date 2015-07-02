@@ -149,12 +149,20 @@ trait HasRoleAndPermission
     /**
      * Get all permissions from roles.
      *
+     * @param bool $unique
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getRolePermissions()
+    public function getRolePermissions($unique = true)
     {
+        // return $permissionModel::select([$prefix . 'permissions.*', $prefix . 'permission_role.created_at as pivot_created_at', $prefix . 'permission_role.updated_at as pivot_updated_at'])
+        //     ->join($prefix . 'permission_role', $prefix . 'permission_role.permission_id', '=', $prefix . 'permissions.id')->join($prefix . 'roles', $prefix . 'roles.id', '=', $prefix . 'permission_role.role_id')
+        //     ->whereIn($prefix . 'roles.id', $this->getRoles()->lists('id')->toArray()) ->orWhere($prefix . 'roles.level', '<', $this->level())
+        //     ->groupBy($prefix . 'permissions.id');
+        
+        // TODO: Iplement levels again
         $this->load('roles.permissions');
-        return $this->roles->pluck('permissions')->collapse();
+        $rolePermissions = $this->roles->pluck('permissions')->collapse();
+        return $unique ? $rolePermissions->unique() : $rolePermissions;
     }
 
     /**
@@ -168,13 +176,15 @@ trait HasRoleAndPermission
     }
 
     /**
-     * Get all permissions as collection. Lazy Eagerload roles and flag them as loaded.
+     * Get all permissions as collection.
      *
+     * @param bool $unique
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getPermissions()
+    public function getPermissions($unique = true)
     {
-        return $this->getRolePermissions()->get()->merge($this->userPermissions()->get());
+        $permissions = $this->getRolePermissions(false)->merge($this->userPermissions()->get());
+        return $unique ? $permissions->unique() : $permissions;
     }
 
     /**

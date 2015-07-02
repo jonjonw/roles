@@ -85,9 +85,10 @@ interface HasRoleAndPermission
     /**
      * Get all permissions from roles.
      *
+     * @param bool $unique
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getRolePermissions();
+    public function getRolePermissions($unique = true);
 
     /**
      * User belongs to many permissions.
@@ -99,9 +100,10 @@ interface HasRoleAndPermission
     /**
      * Get all permissions as collection.
      *
+     * @param bool $unique
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getPermissions();
+    public function getPermissions($unique = true);
 
     /**
      * Check if the user has a permission or permissions.
