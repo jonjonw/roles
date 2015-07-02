@@ -100,10 +100,9 @@ interface HasRoleAndPermission
     /**
      * Get all permissions as collection.
      *
-     * @param bool $unique
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getPermissions($unique = true);
+    public function getPermissions();
 
     /**
      * Check if the user has a permission or permissions.

@@ -158,7 +158,7 @@ trait HasRoleAndPermission
         //     ->join($prefix . 'permission_role', $prefix . 'permission_role.permission_id', '=', $prefix . 'permissions.id')->join($prefix . 'roles', $prefix . 'roles.id', '=', $prefix . 'permission_role.role_id')
         //     ->whereIn($prefix . 'roles.id', $this->getRoles()->lists('id')->toArray()) ->orWhere($prefix . 'roles.level', '<', $this->level())
         //     ->groupBy($prefix . 'permissions.id');
-        
+
         // TODO: Iplement levels again
         $this->load('roles.permissions');
         $rolePermissions = $this->roles->pluck('permissions')->collapse();
@@ -178,13 +178,12 @@ trait HasRoleAndPermission
     /**
      * Get all permissions as collection.
      *
-     * @param bool $unique
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getPermissions($unique = true)
+    public function getPermissions()
     {
-        $permissions = $this->getRolePermissions(false)->merge($this->userPermissions()->get());
-        return $unique ? $permissions->unique() : $permissions;
+        // Note that merge() removes duplicates
+        return $this->getRolePermissions(false)->merge($this->userPermissions()->get());
     }
 
     /**
