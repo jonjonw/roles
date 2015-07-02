@@ -149,22 +149,12 @@ trait HasRoleAndPermission
     /**
      * Get all permissions from roles.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function rolePermissions()
+    public function getRolePermissions()
     {
-        $permissionModel = app(config('roles.models.permission'));
-
-        if (!$permissionModel instanceof Model) {
-            throw new InvalidArgumentException('[roles.models.permission] must be an instance of \Illuminate\Database\Eloquent\Model');
-        }
-
-        $prefix = config('database.connections.' . config('database.default') . '.prefix');
-
-        return $permissionModel::select([$prefix . 'permissions.*', $prefix . 'permission_role.created_at as pivot_created_at', $prefix . 'permission_role.updated_at as pivot_updated_at'])
-                ->join($prefix . 'permission_role', $prefix . 'permission_role.permission_id', '=', $prefix . 'permissions.id')->join($prefix . 'roles', $prefix . 'roles.id', '=', $prefix . 'permission_role.role_id')
-                ->whereIn($prefix . 'roles.id', $this->getRoles()->lists('id')->toArray()) ->orWhere($prefix . 'roles.level', '<', $this->level())
-                ->groupBy($prefix . 'permissions.id');
+        $this->load('roles.permissions');
+        return $this->roles->pluck('permissions')->collapse();
     }
 
     /**
@@ -184,7 +174,7 @@ trait HasRoleAndPermission
      */
     public function getPermissions()
     {
-        return $this->rolePermissions()->get()->merge($this->userPermissions()->get());
+        return $this->getRolePermissions()->get()->merge($this->userPermissions()->get());
     }
 
     /**
